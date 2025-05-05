@@ -1,48 +1,40 @@
-// Face Mesh Detection with ml5.js  
-// https://thecodingtrain.com/tracks/ml5js-beginners-guide/ml5/facemesh  
-// https://youtu.be/R5UZsIwPbJA  
-
 let video;
-let faceMesh;
-let faces = [];
-
-function preload() {
-  // Initialize FaceMesh model with a maximum of one face and flipped video input
-  faceMesh = ml5.faceMesh({ maxFaces: 1, flipped: true });
-}
-
-function mousePressed() {
-  // Log detected face data tothe console
-  console.log(faces);
-}
-
-function gotFaces(results) {
-  faces = results;
-}
+let handPose;
+let hands = [];
 
 function setup() {
   createCanvas(640, 480);
-  video = createCapture(VIDEO, { flipped: true });
+  video = createCapture(VIDEO);
+  video.size(640, 480);
   video.hide();
 
-  // Start detecting faces
-  faceMesh.detectStart(video, gotFaces);
+  handPose = ml5.handpose(video, modelReady); // 正確初始化
+  handPose.on("predict", gotHands); // 設定偵測結果回傳函式
+}
+
+function modelReady() {
+  console.log("Handpose model ready!");
+}
+
+function gotHands(results) {
+  hands = results;
 }
 
 function draw() {
-  background(0);
   image(video, 0, 0);
 
-  // Ensure at least one face is detected
-  if (faces.length > 0) {
-    let face = faces[0];
-
-    // Draw keypoints on the detected face
-    for (let i = 0; i < face.keypoints.length; i++) {
-      let keypoint = face.keypoints[i];
-      stroke(255, 255, 0);
-      strokeWeight(2);
-      point(keypoint.x, keypoint.y);
+  if (hands.length > 0) {
+    for (let hand of hands) {
+      for (let i = 0; i < hand.landmarks.length; i++) {
+        let [x, y, z] = hand.landmarks[i]; // landmark 是 [x,y,z] 陣列
+        fill(0, 255, 0);
+        noStroke();
+        circle(x, y, 10);
+      }
     }
   }
+}
+
+function mousePressed() {
+  console.log(hands);
 }
