@@ -1,21 +1,23 @@
-// Hand Pose Detection with ml5.js
-// https://thecodingtrain.com/tracks/ml5js-beginners-guide/ml5/hand-pose
+// Face Mesh Detection with ml5.js  
+// https://thecodingtrain.com/tracks/ml5js-beginners-guide/ml5/facemesh  
+// https://youtu.be/R5UZsIwPbJA  
 
 let video;
-let handPose;
-let hands = [];
+let faceMesh;
+let faces = [];
 
 function preload() {
-  // Initialize HandPose model with flipped video input
-  handPose = ml5.handPose({ flipped: true });
+  // Initialize FaceMesh model with a maximum of one face and flipped video input
+  faceMesh = ml5.faceMesh({ maxFaces: 1, flipped: true });
 }
 
 function mousePressed() {
-  console.log(hands);
+  // Log detected face data tothe console
+  console.log(faces);
 }
 
-function gotHands(results) {
-  hands = results;
+function gotFaces(results) {
+  faces = results;
 }
 
 function setup() {
@@ -23,32 +25,24 @@ function setup() {
   video = createCapture(VIDEO, { flipped: true });
   video.hide();
 
-  // Start detecting hands
-  handPose.detectStart(video, gotHands);
+  // Start detecting faces
+  faceMesh.detectStart(video, gotFaces);
 }
 
 function draw() {
+  background(0);
   image(video, 0, 0);
 
-  // Ensure at least one hand is detected
-  if (hands.length > 0) {
-    for (let hand of hands) {
-      if (hand.confidence > 0.1) {
-        // Loop through keypoints and draw circles
-        for (let i = 0; i < hand.keypoints.length; i++) {
-          let keypoint = hand.keypoints[i];
+  // Ensure at least one face is detected
+  if (faces.length > 0) {
+    let face = faces[0];
 
-          // Color-code based on left or right hand
-          if (hand.handedness == "Left") {
-            fill(255, 0, 255);
-          } else {
-            fill(255, 255, 0);
-          }
-
-          noStroke();
-          circle(keypoint.x, keypoint.y, 16);
-        }
-      }
+    // Draw keypoints on the detected face
+    for (let i = 0; i < face.keypoints.length; i++) {
+      let keypoint = face.keypoints[i];
+      stroke(255, 255, 0);
+      strokeWeight(2);
+      point(keypoint.x, keypoint.y);
     }
   }
 }
