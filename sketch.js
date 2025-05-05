@@ -4,13 +4,18 @@ let hands = [];
 
 function setup() {
   createCanvas(640, 480);
-  video = createCapture(VIDEO);
+  video = createCapture(VIDEO, () => {
+    console.log("📷 攝影機啟動成功");
+  });
   video.size(640, 480);
   video.hide();
 
-  handPose = ml5.handpose(video, modelReady); // 正確初始化
-  handPose.on("predict", gotHands); // 設定偵測結果回傳函式
+  handPose = ml5.handpose(video, () => {
+    console.log("✋ Handpose 模型載入成功");
+  });
+  handPose.on("predict", gotHands);
 }
+
 
 function modelReady() {
   console.log("Handpose model ready!");
